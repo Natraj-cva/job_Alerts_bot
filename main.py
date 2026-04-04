@@ -3,8 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-BOT_TOKEN = "8269721212:AAGePcx3XJFgQtqnqK6MvEw_ke2xVh5AtnA"
-CHAT_ID = "996067981"
+BOT_TOKEN = os.getenv("8269721212:AAGePcx3XJFgQtqnqK6MvEw_ke2xVh5AtnA")
+CHAT_ID = os.getenv("996067981")
 SEEN_FILE = "seen_jobs.txt"
 
 
