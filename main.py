@@ -79,8 +79,8 @@ while True:
             new_jobs.append(job)
             save_seen_job(job)
 
-    if jobs:
-        message =  "\n\n".join(jobs[:5])
+    if new_jobs:
+        message =  "\n\n".join(new_jobs[:5])
     else:
         message = "No new jobs found right now."
 
