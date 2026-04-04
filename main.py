@@ -59,7 +59,7 @@ def get_remoteok_jobs():
             job_link = ""
             if link_tag and link_tag.get("href"):
                 job_link = "https://remoteok.com" + link_tag.get("href")
-
+            jobs.append(f"{title} at {company}\n{job_link}")
             job_text = f"{title} at {company}"
             full_job = f"{job_text}\n{job_link}".strip()
 
@@ -79,8 +79,8 @@ while True:
             new_jobs.append(job)
             save_seen_job(job)
 
-    if new_jobs:
-        message = "New Job Alerts:\n\n" + "\n\n".join(new_jobs)
+    if jobs:
+        message =  "\n\n".join(jobs[:5])
     else:
         message = "No new jobs found right now."
 
