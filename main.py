@@ -38,7 +38,7 @@ def get_remoteok_jobs():
         "Accept-Language" :"en-us,en;q=0.9"
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers , timeout =10)
     print("Website status:", response.status_code)
 
     soup = BeautifulSoup(response.text, "html.parser")
