@@ -34,7 +34,8 @@ def save_seen_job(job):
 def get_remoteok_jobs():
     url = "https://remoteok.com/remote-python-jobs"
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Mozilla/5.0" (Windows NT 10.0; Win64; 64)",
+        "Accept-Language" :"en-us,en;q=0.9"
     }
 
     response = requests.get(url, headers=headers)
