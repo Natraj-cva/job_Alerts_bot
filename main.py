@@ -3,13 +3,13 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-BOT_TOKEN = os.getenv("8503510943:AAGpw-Fgwx_wrvjRSZv_kIHTh4spHBSRzu4")
-CHAT_ID = os.getenv("996067981")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 SEEN_FILE = "seen_jobs.txt"
 
 
 def send_telegram_message(message):
-    url = f"https://api.telegram.org/bot8503510943:AAGpw-Fgwx_wrvjRSZv_kIHTh4spHBSRzu4/sendMessage"
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = {
         "chat_id": CHAT_ID,
         "text": message
