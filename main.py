@@ -72,8 +72,6 @@ def get_remoteok_jobs():
                 "machine learning",
                 "data",
                 "backend",
-                "developer",
-                "engineer"
             ]
 
             bad_words = [
@@ -89,12 +87,40 @@ def get_remoteok_jobs():
                 jobs.append(full_job)
 
     return jobs
+def get_weworkremotely_jobs():
+    url = "https://weworkremotely.com/remote-jobs/search?term=python"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    jobs = []
+
+    listings = soup.find_all("section", class_="jobs")
+
+    for section in listings:
+        for li in section.find_all("li"):
+            title_tag = li.find("span", class_="title")
+            company_tag = li.find("span", class_="company")
+
+            if title_tag and company_tag:
+                title = title_tag.text.strip()
+                company = company_tag.text.strip()
+
+                link = li.find("a")["href"]
+                job_link = "https://weworkremotely.com" + link
+
+                jobs.append(f"{title} at {company}\n{job_link}")
+
+    return jobs
 
 
 while True:
     print("\n--- Running job check ---")
     seen_jobs = load_seen_jobs()
-    jobs = get_remoteok_jobs()
+    jobs = get_remoteok_jobs()  + get_weworkremotely_jobs()
 
     new_jobs = []
 
