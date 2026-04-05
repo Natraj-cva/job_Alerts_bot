@@ -1,7 +1,20 @@
+from threading import Thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import os
 import time
 import requests
 from bs4 import BeautifulSoup
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is running")
+
+def run_server():
+    server = HTTPServer(("0.0.0.0", 8080), Handler)
+    server.serve_forever()
+
+Thread(target=run_server).start()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
