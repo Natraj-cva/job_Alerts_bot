@@ -1,4 +1,4 @@
-import time 
+import time
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -35,10 +35,10 @@ def get_remoteok_jobs():
     url = "https://remoteok.com/remote-python-jobs"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept-Language" :"en-us,en;q=0.9"
+        "Accept-Language": "en-US,en;q=0.9"
     }
 
-    response = requests.get(url, headers=headers , timeout =10)
+    response = requests.get(url, headers=headers, timeout=10)
     print("Website status:", response.status_code)
 
     soup = BeautifulSoup(response.text, "html.parser")
@@ -59,13 +59,37 @@ def get_remoteok_jobs():
             job_link = ""
             if link_tag and link_tag.get("href"):
                 job_link = "https://remoteok.com" + link_tag.get("href")
-            jobs.append(f"{title} at {company}\n{job_link}")
+
             job_text = f"{title} at {company}"
             full_job = f"{job_text}\n{job_link}".strip()
 
-            jobs.append(full_job)
+            text = f"{title} {company} {row.get_text(' ', strip=True)}".lower()
+
+            keywords = [
+                "python",
+                "ai",
+                "ml",
+                "machine learning",
+                "data",
+                "backend",
+                "developer",
+                "engineer"
+            ]
+
+            bad_words = [
+                "senior",
+                "staff",
+                "principal",
+                "lead",
+                "manager",
+                "director"
+            ]
+
+            if any(word in text for word in keywords) and not any(bad in text for bad in bad_words):
+                jobs.append(full_job)
 
     return jobs
+
 
 while True:
     print("\n--- Running job check ---")
@@ -80,13 +104,12 @@ while True:
             save_seen_job(job)
 
     if new_jobs:
-        message =  "\n\n".join(new_jobs[:5])
+        message = "🔥 New Job Alerts\n\n" + "\n\n".join(new_jobs[:5])
+        print("Final message:")
+        print(message)
+        send_telegram_message(message)
     else:
-        message = "No new jobs found right now."
+        print("No new jobs found right now.")
 
-    print("Final message:")
-    print(message)
-
-    send_telegram_message(message)
     print("Sleeping for 10 minutes...\n")
-    time.sleep(600)  # 600 seconds = 10 minutes
+    time.sleep(600)
