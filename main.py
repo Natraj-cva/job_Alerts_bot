@@ -34,9 +34,10 @@ def save_seen_job(job):
 def get_remoteok_jobs():
     url = "https://remoteok.com/remote-python-jobs"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept-Language": "en-US,en;q=0.9"
-    }
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://google.com"
+}
 
     jobs = []
 
@@ -97,13 +98,10 @@ def get_remoteok_jobs():
 
     print("RemoteOK jobs:", len(jobs))
     return jobs
-
-
 def get_weworkremotely_jobs():
     url = "https://weworkremotely.com/remote-jobs/search?term=python"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept-Language": "en-US,en;q=0.9"
+        "User-Agent": "Mozilla/5.0"
     }
 
     jobs = []
@@ -112,8 +110,28 @@ def get_weworkremotely_jobs():
         response = requests.get(url, headers=headers, timeout=10)
         print("WWR status:", response.status_code)
 
-        if response.status_code != 200:
-            return jobs
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        links = soup.find_all("a", href=True)
+
+        print("Total links found:", len(links))
+
+        for link in links:
+            text = link.get_text(" ", strip=True)
+
+            if text and ("python" in text.lower() or "developer" in text.lower()):
+                job_link = "https://weworkremotely.com" + link["href"]
+
+                full_job = f"{text}\n{job_link}"
+
+                jobs.append(full_job)
+
+        print("WWR jobs:", len(jobs))
+
+    except Exception as e:
+        print("WWR error:", e)
+
+    return jobs
 
         soup = BeautifulSoup(response.text, "html.parser")
         listings = soup.find_all("section", class_="jobs")
