@@ -38,89 +38,145 @@ def get_remoteok_jobs():
         "Accept-Language": "en-US,en;q=0.9"
     }
 
-    response = requests.get(url, headers=headers, timeout=10)
-    print("Website status:", response.status_code)
-
-    soup = BeautifulSoup(response.text, "html.parser")
     jobs = []
 
-    rows = soup.find_all("tr", class_="job")
-    print("Total job rows found:", len(rows))
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        print("RemoteOK status:", response.status_code)
 
-    for row in rows[:10]:
-        title_tag = row.find("h2")
-        company_tag = row.find("h3")
-        link_tag = row.find("a", class_="preventLink")
+        if response.status_code != 200:
+            return jobs
 
-        if title_tag and company_tag:
-            title = title_tag.get_text(strip=True)
-            company = company_tag.get_text(strip=True)
+        soup = BeautifulSoup(response.text, "html.parser")
+        rows = soup.find_all("tr", class_="job")
+        print("RemoteOK rows found:", len(rows))
 
-            job_link = ""
-            if link_tag and link_tag.get("href"):
-                job_link = "https://remoteok.com" + link_tag.get("href")
+        for row in rows[:10]:
+            title_tag = row.find("h2")
+            company_tag = row.find("h3")
+            link_tag = row.find("a", class_="preventLink")
 
-            job_text = f"{title} at {company}"
-            full_job = f"{job_text}\n{job_link}".strip()
+            if title_tag and company_tag:
+                title = title_tag.get_text(strip=True)
+                company = company_tag.get_text(strip=True)
 
-            text = f"{title} {company} {row.get_text(' ', strip=True)}".lower()
+                job_link = ""
+                if link_tag and link_tag.get("href"):
+                    job_link = "https://remoteok.com" + link_tag.get("href")
 
-            keywords = [
-                "python",
-                "ai",
-                "ml",
-                "machine learning",
-                "data",
-                "backend",
-            ]
+                job_text = f"{title} at {company}"
+                full_job = f"{job_text}\n{job_link}".strip()
 
-            bad_words = [
-                "senior",
-                "staff",
-                "principal",
-                "lead",
-                "manager",
-                "director"
-            ]
+                text = f"{title} {company} {row.get_text(' ', strip=True)}".lower()
 
-            if any(word in text for word in keywords) and not any(bad in text for bad in bad_words):
-                jobs.append(full_job)
+                keywords = [
+                    "python",
+                    "ai",
+                    "ml",
+                    "machine learning",
+                    "data",
+                    "backend",
+                    "developer",
+                    "engineer"
+                ]
 
+                bad_words = [
+                    "senior",
+                    "staff",
+                    "principal",
+                    "lead",
+                    "manager",
+                    "director"
+                ]
+
+                if any(word in text for word in keywords) and not any(bad in text for bad in bad_words):
+                    jobs.append(full_job)
+
+    except Exception as e:
+        print("RemoteOK error:", e)
+
+    print("RemoteOK jobs:", len(jobs))
     return jobs
+
+
 def get_weworkremotely_jobs():
     url = "https://weworkremotely.com/remote-jobs/search?term=python"
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Accept-Language": "en-US,en;q=0.9"
     }
-
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
 
     jobs = []
 
-    listings = soup.find_all("section", class_="jobs")
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        print("WWR status:", response.status_code)
 
-    for section in listings:
-        for li in section.find_all("li"):
-            title_tag = li.find("span", class_="title")
-            company_tag = li.find("span", class_="company")
+        if response.status_code != 200:
+            return jobs
 
-            if title_tag and company_tag:
-                title = title_tag.text.strip()
-                company = company_tag.text.strip()
+        soup = BeautifulSoup(response.text, "html.parser")
+        listings = soup.find_all("section", class_="jobs")
+        print("WWR sections found:", len(listings))
 
-                link = li.find("a")["href"]
-                job_link = "https://weworkremotely.com" + link
+        for section in listings:
+            for li in section.find_all("li"):
+                title_tag = li.find("span", class_="title")
+                company_tag = li.find("span", class_="company")
+                link_tag = li.find("a")
 
-                jobs.append(f"{title} at {company}\n{job_link}")
+                if title_tag and company_tag and link_tag and link_tag.get("href"):
+                    title = title_tag.get_text(strip=True)
+                    company = company_tag.get_text(strip=True)
+                    job_link = "https://weworkremotely.com" + link_tag.get("href")
 
+                    full_job = f"{title} at {company}\n{job_link}"
+
+                    text = f"{title} {company} {li.get_text(' ', strip=True)}".lower()
+
+                    keywords = [
+                        "python",
+                        "ai",
+                        "ml",
+                        "machine learning",
+                        "data",
+                        "backend",
+                        "developer",
+                        "engineer"
+                    ]
+
+                    bad_words = [
+                        "senior",
+                        "staff",
+                        "principal",
+                        "lead",
+                        "manager",
+                        "director"
+                    ]
+
+                    if any(word in text for word in keywords) and not any(bad in text for bad in bad_words):
+                        jobs.append(full_job)
+
+    except Exception as e:
+        print("WWR error:", e)
+
+    print("WWR jobs:", len(jobs))
     return jobs
 
 
 while True:
     print("\n--- Running job check ---")
+
     seen_jobs = load_seen_jobs()
-    jobs = get_remoteok_jobs()  + get_weworkremotely_jobs()
+
+    remoteok_jobs = get_remoteok_jobs()
+    wwr_jobs = get_weworkremotely_jobs()
+
+    jobs = remoteok_jobs + wwr_jobs
+    print("Combined jobs:", len(jobs))
+
+    jobs = list(dict.fromkeys(jobs))
+    print("Unique combined jobs:", len(jobs))
 
     new_jobs = []
 
